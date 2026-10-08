@@ -1,0 +1,18 @@
+# Logs
+logs
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Local database (the MVP defaults to SQLite so it runs without Postgres)
+*.db
+*.sqlite3
+
+# Environment / secrets
+.env
+.env.local

@@ -1,0 +1,325 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+/* ---------------------------------------------------------------------------------------
+   Theme: the palette of the authored Field Manuals showcase.
+
+   The landing route renders that document full-bleed in an iframe, and the pages the books
+   open have to look like they came out of the same book. Two things make that true:
+
+     1. The custom properties below are the authored ones (see lib/palette.ts, which holds
+        the same hexes for anything drawn in JS). Components keep their existing class
+        names — `aq-panel`, `aq-btn`, `text-cyan-300` — so nothing downstream had to change.
+     2. The `@theme` block re-points the six Tailwind colour families the components already
+        use at warm ramps. Re-declaring the scales is what makes every variant, opacity
+        modifier and state (`hover:text-cyan-300`, `bg-cyan-400/20`) follow, which an
+        override of individual utility classes would not.
+
+   So `cyan` here is gold and `slate` is parchment. The names are kept for now: renaming
+   them would touch every component for no behaviour change.
+---------------------------------------------------------------------------------------- */
+
+@theme {
+  --color-cyan-50: #fbf6ea;
+  --color-cyan-100: #f4e9d2;
+  --color-cyan-200: #e7d5ae;
+  --color-cyan-300: #dbc39c;
+  --color-cyan-400: #c3a47b;
+  --color-cyan-500: #b7976c;
+  --color-cyan-600: #9c7f58;
+  --color-cyan-700: #7f6646;
+  --color-cyan-800: #5f4c34;
+  --color-cyan-900: #3f321f;
+
+  --color-slate-50: #f6f0e4;
+  --color-slate-100: #ece3d1;
+  --color-slate-200: #ded3bb;
+  --color-slate-300: #d5c8ae;
+  --color-slate-400: #c5b79e;
+  --color-slate-500: #9e9280;
+  --color-slate-600: #7d7362;
+  --color-slate-700: #5f5849;
+  --color-slate-800: #454034;
+  --color-slate-900: #2f2b22;
+
+  --color-amber-50: #fbf3e2;
+  --color-amber-100: #f4e4c5;
+  --color-amber-200: #ecd3a4;
+  --color-amber-300: #e0b877;
+  --color-amber-400: #d1a45f;
+  --color-amber-500: #b98a45;
+  --color-amber-600: #9a7038;
+  --color-amber-700: #79572c;
+  --color-amber-800: #573e1f;
+  --color-amber-900: #382714;
+
+  --color-red-50: #faeee8;
+  --color-red-100: #f3d9cd;
+  --color-red-200: #e7bda7;
+  --color-red-300: #d99a7c;
+  --color-red-400: #c07a5a;
+  --color-red-500: #a96346;
+  --color-red-600: #8d4f37;
+  --color-red-700: #6f3d2b;
+  --color-red-800: #512c1f;
+  --color-red-900: #351c13;
+
+  --color-emerald-50: #f2f4ea;
+  --color-emerald-100: #e2e6d3;
+  --color-emerald-200: #ccd3b3;
+  --color-emerald-300: #a8b489;
+  --color-emerald-400: #89946f;
+  --color-emerald-500: #6f7a59;
+  --color-emerald-600: #586247;
+  --color-emerald-700: #434b36;
+  --color-emerald-800: #2f3526;
+  --color-emerald-900: #1e2218;
+
+  --color-lime-50: #f5f6e9;
+  --color-lime-100: #e8ebd2;
+  --color-lime-200: #d6dcb0;
+  --color-lime-300: #b3bd8e;
+  --color-lime-400: #9aa572;
+  --color-lime-500: #7e8a5b;
+  --color-lime-600: #656f48;
+  --color-lime-700: #4d5538;
+  --color-lime-800: #363c27;
+  --color-lime-900: #222617;
+}
+
+:root {
+  --aq-bg: #211e18;
+  --aq-panel: rgba(41, 37, 29, 0.92);
+  --aq-border: rgba(219, 195, 156, 0.24);
+  /* The authored accents, under the names this stylesheet already used. */
+  --aq-cyan: #dbc39c;
+  --aq-teal: #b7976c;
+  --aq-lime: #89946f;
+  --aq-amber: #c3a47b;
+  --aq-red: #a96346;
+  --aq-text: #eee2ca;
+  --aq-muted: #c5b79e;
+  --aq-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Baskerville,
+    Georgia, serif;
+  font-size: 15px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(circle at 49% 84%, rgba(117, 102, 71, 0.2), transparent 34%),
+    radial-gradient(circle at 14% 4%, rgba(100, 112, 77, 0.12), transparent 28%),
+    linear-gradient(180deg, #343025 0%, var(--aq-bg) 48%, #211e18 100%);
+  background-attachment: fixed;
+  color: var(--aq-text);
+  font-family: var(--aq-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(219, 195, 156, 0.28);
+}
+
+/* ---------------------------------------------------------------------------------------
+   The landing route.
+
+   The authored document is a complete page with its own lifecycle and its own stage
+   gradient, so it gets the viewport rather than a panel: a fixed parent that cannot be
+   scrolled or outgrown, and an iframe that fills it exactly.
+---------------------------------------------------------------------------------------- */
+.book-showcase-host {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.book-showcase-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #29251d;
+}
+
+/* Warm panel with a soft paper glow (was the cyan scanline panel). */
+.aq-panel {
+  background: var(--aq-panel);
+  border: 1px solid var(--aq-border);
+  box-shadow: 0 1px 0 rgba(238, 224, 194, 0.06) inset, 0 18px 30px rgba(24, 18, 10, 0.28);
+  backdrop-filter: blur(6px);
+}
+
+.aq-glow-text {
+  text-shadow: 0 0 10px rgba(219, 195, 156, 0.45);
+}
+
+.aq-logo {
+  display: inline-block;
+  width: 1.35rem;
+  height: 1.35rem;
+  background: url("/aq-logo.svg") no-repeat center / contain;
+  flex: 0 0 auto;
+}
+
+.aq-neon-border {
+  border: 1px solid rgba(219, 195, 156, 0.45);
+  box-shadow: 0 0 10px rgba(219, 195, 156, 0.22);
+}
+
+.aq-btn {
+  background: linear-gradient(180deg, rgba(219, 195, 156, 0.16), rgba(219, 195, 156, 0.05));
+  border: 1px solid rgba(219, 195, 156, 0.5);
+  color: #f0e3c4;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all 0.15s ease;
+}
+.aq-btn:hover:not(:disabled) {
+  background: rgba(219, 195, 156, 0.26);
+  box-shadow: 0 0 14px rgba(219, 195, 156, 0.35);
+}
+.aq-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.aq-btn-primary {
+  background: linear-gradient(180deg, rgba(219, 195, 156, 0.9), rgba(183, 151, 108, 0.78));
+  border: 1px solid var(--aq-cyan);
+  color: #211e18;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.aq-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(219, 195, 156, 0.55);
+}
+
+.aq-input,
+.aq-select {
+  background: rgba(29, 26, 21, 0.85);
+  border: 1px solid rgba(219, 195, 156, 0.28);
+  color: var(--aq-text);
+  padding: 0.45rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  outline: none;
+}
+.aq-input:focus,
+.aq-select:focus {
+  border-color: var(--aq-cyan);
+  box-shadow: 0 0 10px rgba(219, 195, 156, 0.3);
+}
+.aq-select option {
+  background: #29251d;
+  color: var(--aq-text);
+}
+
+.aq-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(219, 195, 156, 0.72);
+}
+
+@keyframes aq-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.aq-pulse {
+  animation: aq-pulse 2s ease-in-out infinite;
+}
+
+@keyframes aq-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+.aq-scanline {
+  pointer-events: none;
+  position: absolute;
+  inset-inline: 0;
+  height: 90px;
+  background: linear-gradient(180deg, transparent, rgba(219, 195, 156, 0.05), transparent);
+  animation: aq-scan 7s linear infinite;
+}
+
+/* Map popups (fish markers) — restyled from MapLibre's default white bubble */
+.maplibregl-popup-content {
+  background: var(--aq-panel);
+  border: 1px solid var(--aq-border);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  color: var(--aq-text);
+  box-shadow: 0 12px 26px rgba(24, 18, 10, 0.45);
+}
+.maplibregl-popup-tip {
+  border-top-color: var(--aq-border) !important;
+  border-bottom-color: var(--aq-border) !important;
+}
+.maplibregl-popup-close-button {
+  color: rgba(219, 195, 156, 0.8);
+  font-size: 1rem;
+  padding: 0 0.35rem;
+}
+
+/* The basemap service only ships grey tiles. Sepia-shifting the canvas is what makes the
+   water read as the same ink as the rest of the app; the raster overlays and fish symbols
+   are drawn on this canvas too, so they shift with it rather than against it. */
+.maplibregl-canvas {
+  filter: sepia(0.32) saturate(0.9) brightness(1.06) contrast(0.97);
+}
+
+.maplibregl-ctrl-group {
+  background: var(--aq-panel) !important;
+  border: 1px solid var(--aq-border);
+}
+.maplibregl-ctrl-group button + button {
+  border-top-color: var(--aq-border) !important;
+}
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1) sepia(1) saturate(0.35) opacity(0.85);
+}
+.maplibregl-ctrl-attrib {
+  background: rgba(41, 37, 29, 0.78) !important;
+  color: var(--aq-muted);
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--aq-cyan);
+}
+
+.aq-popup-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aq-cyan);
+  margin: 0 0 0.35rem;
+}
+.aq-popup-sample {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--aq-amber);
+  margin: 0 0 0.35rem;
+}
+.aq-popup-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.7rem;
+  color: var(--aq-muted);
+  margin: 0.1rem 0;
+}
+.aq-popup-row span {
+  color: var(--aq-text);
+}
+
+/* Status color helpers */
+.suit-veryhigh { color: var(--aq-cyan); }
+.suit-high { color: var(--aq-lime); }
+.suit-moderate { color: var(--aq-amber); }
+.suit-low { color: var(--aq-red); }
